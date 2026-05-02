@@ -193,3 +193,4 @@ EMAIL_TIMEOUT = 10  # Seconds
 # Fallback to console for easier testing in development if password is empty
 if DEBUG and not EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+print(f"USING EMAIL BACKEND: {EMAIL_BACKEND}")
