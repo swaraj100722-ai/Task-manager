@@ -1,8 +1,12 @@
+import logging
+
 from rest_framework import generics, permissions, status, views
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import UserSerializer, RegisterSerializer, CustomTokenObtainPairSerializer
 from django.contrib.auth import get_user_model
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -100,19 +104,31 @@ Task Manager Team
 """
 
         try:
-            print(f"Attempting to send email to {user.email}...")
+            logger.info(
+                "Attempting to send welcome email to %s (host=%s, port=%s, user=%s)",
+                user.email,
+                settings.EMAIL_HOST,
+                settings.EMAIL_PORT,
+                settings.EMAIL_HOST_USER,
+            )
             send_mail(
                 subject,
                 plain_message,
                 settings.DEFAULT_FROM_EMAIL,
                 [user.email],
                 html_message=html_message,
-                fail_silently=True,
+                fail_silently=False,
             )
-            print(f"Email sent successfully to {user.email}")
+            logger.info("Welcome email sent successfully to %s", user.email)
         except Exception as e:
-            print(f"CRITICAL: Failed to send email to {user.email}: {e}")
+            logger.error(
+                "Failed to send welcome email to %s: %s",
+                user.email,
+                e,
+                exc_info=True,
+            )
             # We don't raise here so the user creation still succeeds
+
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
