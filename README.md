@@ -98,34 +98,51 @@ Before you begin, ensure you have the following installed:
 ## 📖 User Guide: Step-by-Step
 
 ### 1. Authentication & Login
-- Access the application at `http://127.0.0.1:8000/`.
-- Use your email and password to log in.
-- **Admin Note**: Users with emails ending in `@task.com` are automatically granted Admin privileges in the frontend.
+- **Accessing the App**: Open your browser and go to `http://127.0.0.1:8000/`.
+- **Login**: Enter your registered email and password. Use the "Eye" icon to toggle password visibility.
+- **Role Detection**: 
+  - **Admin**: Log in with an email ending in `@task.com` to unlock all administrative features.
+  - **Member**: Use any other registered email to access the member dashboard.
+- **Forgot Password**: If you forget your password, contact your system administrator for a reset.
 
-### 2. Creating a Project (Admin)
-- Navigate to the **Projects** tab.
-- Click **"Create Project"**.
-- Fill in the Name and Description and save. Your project will appear in the beautiful project grid.
+### 2. Creating & Managing Projects (Admin)
+- **Navigation**: Click on the **Projects** link in the sidebar.
+- **Creation**: Click the blue **"Create Project"** button. Provide a clear title and a detailed description.
+- **Grid View**: Projects are displayed as premium glassmorphism cards. Each card shows the project status, creation date, and assigned members.
+- **Details**: Click on any project card to view its specific tasks and team members.
 
 ### 3. Managing Team Members (Admin)
-- Go to the **Team Members** tab.
-- Click **"Add Member"**.
-- The system generates a unique **Employee ID** automatically.
-- Assign a role (**Admin** or **Member**) and save.
+- **Add Members**: Go to the **Team Members** tab and click **"Add Member"**.
+- **Employee ID**: The system automatically generates a unique, stylized Employee ID for every new user.
+- **Role Assignment**: Choose between **Member** (default) or **Admin**.
+- **User Management**: You can edit user details or delete accounts directly from the table.
 
-### 4. Task Intelligence (Using AI)
-- Open any project or go to the **AI Assistant** tab.
-- **Break Down**: Paste a long task description and click "Break Down". The AI will generate a structured list of sub-tasks.
-- **Suggest Priority**: Enter a task title, and the AI will analyze the urgency and suggest a Priority (High, Medium, or Low).
+### 4. Creating & Assigning Tasks
+- **Creation**: In the **Tasks** tab, use the **"Create Task"** button.
+- **Assignment**: Select a project and assign the task to a specific team member.
+- **Priority**: Set the priority level (High, Medium, Low) which will be color-coded in the UI.
+- **Deadlines**: Tasks track their creation and update times for progress monitoring.
 
-### 5. Assigning Tasks
-- In the **Tasks** tab, click **"Create Task"**.
-- Select the project, priority, and assign it to a team member.
-- The member will immediately see the task on their dashboard.
+### 5. Using AI Task Intelligence
+- **AI Assistant Page**: Access the dedicated **AI Assistant** tab for general queries.
+- **Task Breakdown**: When creating a complex task, paste the description into the "Task Intelligence" block and click **"Break Down"**. The AI will return a list of smaller, manageable sub-tasks.
+- **Priority Suggestion**: If you're unsure of a task's urgency, enter the title and description and click **"Suggest Priority"**. The AI will recommend a priority level based on the task's context.
 
-### 6. Task Submission & Review
-- **Members**: Click on an assigned task, upload your submission code or files, and provide a description.
-- **Admins**: Review submissions, rate the work (1-5 stars), and mark the task as "Done".
+### 6. Task Submission Flow (Member)
+- **Viewing Tasks**: Members see a "Recent Tasks" table on their dashboard and a full list in the **Tasks** tab.
+- **Submission**: Click on an assigned task to open the submission modal.
+- **Details**: Provide a summary of the work done and paste your code or include links to the completed work.
+- **Status**: The task status will change to "Review Pending" once submitted.
+
+### 7. Review & Rating System (Admin)
+- **Notifications**: Admins can see which tasks are pending review in the task list.
+- **Reviewing**: Click on a pending task to see the member's submission.
+- **Rating**: Admins can rate the submission from 1 to 5 stars using the interactive rating UI.
+- **Completion**: Once reviewed and rated, the Admin can mark the task as **"Done"**, moving it to the project's completed history.
+
+### 8. Settings & Customization
+- **Theme Toggle**: Use the moon/sun icon in the top navbar to switch between **Dark Mode** and **Light Mode**.
+- **Profile**: Update your profile information or change your password in the **Settings** tab.
 
 ---
 
