@@ -29,8 +29,11 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-t3u%+(=a3aqab*huxn&x1dix5#
 
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost','127.0.0.1','task-manager-swaraj.up.railway.app']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://task-manager-swaraj.up.railway.app',
+]
 
 # Application definition
 
@@ -53,6 +56,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -138,6 +142,17 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "frontend",
 ]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise optimization for static files
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
