@@ -77,6 +77,10 @@ const API = {
         return this.request('/ai/suggest-priority/', 'POST', { title, description });
     },
 
+    aiSummary(tasksData) {
+        return this.request('/ai/summary/', 'POST', { tasks: tasksData });
+    },
+
     // UI Helpers
     showLoader() {
         const loader = document.getElementById('screen-loader');

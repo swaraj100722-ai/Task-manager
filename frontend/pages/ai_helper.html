@@ -207,13 +207,19 @@
                 resultDiv.innerHTML = '<div class="spinner-small"></div> Generating summary...';
 
                 const tasks = await API.getTasks(projId);
-                const taskStr = tasks.map(t => `${t.title} (${t.status})`).join(', ');
+                const taskStr = tasks && tasks.length > 0 ? tasks.map(t => `${t.title} (${t.status})`).join(', ') : '';
 
-                const response = await API.request('/api/ai/summary/', 'POST', { tasks: taskStr });
+                if (!taskStr) {
+                    resultDiv.innerHTML = '<p style="color: var(--danger);">No tasks found for this project. Cannot generate summary.</p>';
+                    API.setButtonLoading(btn, false);
+                    return;
+                }
+
+                const response = await API.aiSummary(taskStr);
                 if (response && response.summary) {
                     resultDiv.innerHTML = response.summary.replace(/\n/g, '<br>');
                 } else {
-                    resultDiv.textContent = 'Failed to generate summary. Ensure project has tasks.';
+                    resultDiv.textContent = 'Failed to generate summary. AI service might be busy.';
                 }
                 API.setButtonLoading(btn, false);
             });
