@@ -266,7 +266,7 @@
     <script src="../js/api.js"></script>
     <script>
         const user = Auth.getUser();
-        const isAdmin = user && user.email && user.email.endsWith('@task.com');
+        const isAdmin = user && user.role === 'Admin';
         if (!isAdmin) {
             window.location.href = '../index.html';
         }
@@ -547,12 +547,13 @@
                 success = await Auth.register(data);
             }
 
-            if (success) {
+            if (success === true) {
                 Notification.show(id ? 'Member updated' : 'Member registered');
                 closeModal();
                 init();
             } else {
-                Notification.show('Operation failed. Check if email exists.', 'error');
+                const msg = (typeof success === 'string' || Array.isArray(success)) ? success : 'Operation failed. This could be due to a duplicate Email or Employee ID.';
+                Notification.show(msg, 'error');
             }
             API.setButtonLoading(btn, false);
         });

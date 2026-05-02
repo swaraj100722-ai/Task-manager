@@ -189,6 +189,7 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'chiduralaswaraj@gmail.com')
 # Strip whitespace from password to prevent issues with .env formatting
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '').strip() 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_TIMEOUT = 10  # Seconds
 
 # Fallback to console for easier testing in development if password is empty
 if DEBUG and not EMAIL_HOST_PASSWORD:

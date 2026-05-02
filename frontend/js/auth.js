@@ -32,7 +32,9 @@ const Auth = {
                 },
                 body: JSON.stringify(userData)
             });
-            return response.ok;
+            if (response.ok) return true;
+            const data = await response.json();
+            return data.detail || data.email || data.employee_id || false;
         } catch (error) {
             console.error('Register error:', error);
             return false;

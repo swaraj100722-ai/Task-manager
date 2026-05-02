@@ -101,7 +101,7 @@ Task Manager Team
                 settings.DEFAULT_FROM_EMAIL,
                 [user.email],
                 html_message=html_message,
-                fail_silently=False,
+                fail_silently=True,
             )
             print(f"Email sent successfully to {user.email}")
         except Exception as e:

@@ -241,7 +241,7 @@
                     document.getElementById('profEmail').value = user.email;
                     document.getElementById('profEmpId').value = user.employee_id || 'N/A';
                     document.getElementById('userAvatar').textContent = user.name[0];
-                    const isAdmin = user && user.email && user.email.endsWith('@task.com');
+                    const isAdmin = user && user.role === 'Admin';
                     if (isAdmin) {
                         document.getElementById('adminNavItem').style.display = 'block';
                     } else {

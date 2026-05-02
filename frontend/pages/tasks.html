@@ -422,7 +422,7 @@
     <script src="../js/api.js"></script>
     <script>
         const user = Auth.getUser();
-        const isAdmin = user && user.email && user.email.endsWith('@task.com');
+        const isAdmin = user && user.role === 'Admin';
         let allProjects = [];
         let currentView = 'list';
         let sortOrder = 'desc'; // 'desc' = latest, 'asc' = oldest
