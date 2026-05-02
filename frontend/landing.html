@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Team Task Manager</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body data-theme="light">
+    <div id="screen-loader">
+        <div class="spinner"></div>
+        <p>LOADING...</p>
+    </div>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div style="display: flex; align-items: center; padding: 0 1rem; margin-bottom: 2rem;">
+                <div
+                    style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h2 style="font-size: 1.25rem;">TaskMaster</h2>
+            </div>
+            <nav class="nav-links">
+                <li class="nav-item"><a href="landing.html" class="nav-link active"><i class="fas fa-chart-pie"></i>
+                        Dashboard Overview</a></li>
+                <li class="nav-item"><a href="pages/projects.html" class="nav-link"><i
+                            class="fas fa-project-diagram"></i> Projects</a></li>
+                <li class="nav-item"><a href="pages/tasks.html" class="nav-link"><i class="fas fa-check-double"></i>
+                        Tasks</a></li>
+                <li class="nav-item" id="adminNavItem" style="display: none;"><a href="pages/admin.html"
+                        class="nav-link"><i class="fas fa-user-shield"></i> Team Members</a></li>
+                <li class="nav-item" id="aiNavItem"><a href="pages/ai_helper.html" class="nav-link"><i
+                            class="fas fa-robot"></i> AI
+                        Assistant</a></li>
+                <li class="nav-item"><a href="pages/settings.html" class="nav-link"><i class="fas fa-cog"></i>
+                        Settings</a></li>
+            </nav>
+            <button onclick="Auth.confirmLogout()" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i>
+                Logout</button>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div style="flex: 1; display: flex; flex-direction: column; margin-left: 260px;">
+            <!-- Top Navbar -->
+            <nav class="top-navbar">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <i class="fas fa-bars" style="cursor: pointer; display: none;"></i>
+                    <h3 id="navTitle">Dashboard</h3>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                    <button onclick="Theme.toggle()" class="theme-toggle"><i class="fas fa-moon"></i></button>
+                    <div style="position: relative; cursor: pointer;">
+                        <i class="fas fa-bell"></i>
+                        <span
+                            style="position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border-radius: 50%; width: 15px; height: 15px; font-size: 0.6rem; display: flex; align-items: center; justify-content: center;">3</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <div id="userAvatar"
+                            style="width: 35px; height: 35px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                            A</div>
+                        <span id="userName" style="font-weight: 500; font-size: 0.9rem;">Admin User</span>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="main-content" style="margin-left: 0; width: 100%;">
+                <header style="margin-bottom: 2rem;">
+                    <h1 id="welcomeUser" class="animate-fade">Welcome back, Admin!</h1>
+                    <p style="color: var(--text-muted);">Overview of your team's performance and project status.</p>
+                </header>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid animate-fade">
+                    <div class="stat-card glass" style="border-top: 4px solid var(--primary);">
+                        <span class="stat-title">TOTAL PROJECTS</span>
+                        <span id="totalProjects" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-card glass" style="border-top: 4px solid var(--secondary);">
+                        <span class="stat-title">TOTAL TASKS</span>
+                        <span id="totalTasks" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-card glass" style="border-top: 4px solid var(--success);">
+                        <span class="stat-title">COMPLETED</span>
+                        <span id="completedTasks" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-card glass" style="border-top: 4px solid var(--accent);">
+                        <span class="stat-title">PENDING</span>
+                        <span id="pendingTasks" class="stat-value">0</span>
+                    </div>
+                </div>
+
+                <div class="stats-grid" style="grid-template-columns: 2fr 1fr; margin-top: 2rem;">
+                    <!-- Charts -->
+                    <div class="glass animate-fade" style="padding: 1.5rem;">
+                        <h3>Task Completion Rate</h3>
+                        <div style="height: 300px; margin-top: 1rem;">
+                            <canvas id="taskChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Activity Feed -->
+                    <div class="glass animate-fade" style="padding: 1.5rem; animation-delay: 0.1s;">
+                        <h3>Recent Activity</h3>
+                        <div class="activity-feed" id="activityFeed">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tables -->
+                <div class="stats-grid" style="grid-template-columns: 1fr; margin-top: 2rem;">
+                    <div class="glass animate-fade" style="padding: 1.5rem; animation-delay: 0.2s;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3>Recent Tasks</h3>
+                            <a href="pages/tasks.html" class="btn btn-primary"
+                                style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">View All</a>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Task Title</th>
+                                    <th>Project</th>
+                                    <th>Assigned To</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentTasksTable">
+                                <!-- Loaded via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = Auth.getUser();
+            if (user) {
+                document.getElementById('userName').textContent = user.name;
+                document.getElementById('userAvatar').textContent = user.name[0];
+                document.getElementById('welcomeUser').textContent = `Welcome back, ${user.name.split(' ')[0]}!`;
+                const isAdmin = user.email.endsWith('@task.com');
+                document.getElementById('navTitle').textContent = isAdmin ? 'Admin Dashboard' : 'Member Dashboard';
+
+                if (isAdmin) {
+                    document.getElementById('adminNavItem').style.display = 'block';
+                    loadAdminDashboard();
+                } else {
+                    document.getElementById('aiNavItem').style.display = 'none';
+                    loadMemberDashboard();
+                }
+            }
+
+            async function loadAdminDashboard() {
+                API.showLoader();
+                const data = await API.request('/projects/admin-stats/');
+                API.hideLoader();
+                if (data) {
+                    const stats = data.stats;
+                    document.getElementById('totalProjects').textContent = stats.total_projects;
+                    document.getElementById('totalTasks').textContent = stats.total_tasks;
+                    document.getElementById('completedTasks').textContent = stats.completed_tasks;
+                    document.getElementById('pendingTasks').textContent = stats.pending_tasks;
+
+                    renderChart(stats);
+                    renderRecentTasks(data.recent_tasks);
+                    renderActivityFeed(data.recent_projects, data.recent_tasks);
+                }
+            }
+
+            async function loadMemberDashboard() {
+                API.showLoader();
+                const stats = await API.getDashboard();
+                API.hideLoader();
+                if (stats) {
+                    document.getElementById('totalProjects').textContent = stats.total_projects || 0;
+                    document.getElementById('totalTasks').textContent = stats.total_tasks;
+                    document.getElementById('completedTasks').textContent = stats.completed_tasks;
+                    document.getElementById('pendingTasks').textContent = stats.pending_tasks;
+
+                    // Same progress bar logic for members
+                    const total = stats.total_tasks;
+                    const completed = stats.completed_tasks;
+                    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+                    const bar = document.getElementById('overallProgressBar');
+                    const container = document.getElementById('overallProgressContainer');
+                    const percentText = document.getElementById('overallProgressPercent');
+
+                    if (bar && container && percentText) {
+                        bar.style.width = `${percent}%`;
+                        percentText.textContent = `${percent}%`;
+                        container.style.height = percent >= 5 ? '10px' : '5px';
+                    }
+
+                    renderChart(stats);
+
+                    // Fetch recent tasks for members
+                    const data = await API.request(`/tasks/?assigned_to=${user.id}`);
+                    if (data) {
+                        renderRecentTasks(data);
+                        renderActivityFeed([], data); // Members see their assigned tasks as activity
+                    }
+                }
+            }
+
+            function renderChart(stats) {
+                const ctx = document.getElementById('taskChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Completed', 'Pending', 'Overdue'],
+                        datasets: [{
+                            label: 'Tasks',
+                            data: [stats.completed_tasks, stats.pending_tasks, stats.overdue_tasks],
+                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            }
+
+            function renderRecentTasks(tasks) {
+                const tbody = document.getElementById('recentTasksTable');
+                tbody.innerHTML = '';
+                tasks.slice(0, 3).forEach(t => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><b>${t.title}</b></td>
+                        <td>${t.project_detail ? t.project_detail.name : 'N/A'}</td>
+                        <td>${t.assigned_to_detail ? t.assigned_to_detail.name : 'Unassigned'}</td>
+                        <td><span class="badge priority-${t.priority}">${t.priority}</span></td>
+                        <td><span class="badge" style="background: var(--border);">${t.status}</span></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            function renderActivityFeed(projects, tasks) {
+                const feed = document.getElementById('activityFeed');
+                feed.innerHTML = '';
+
+                const activities = [
+                    ...(projects || []).map(p => ({
+                        type: 'project',
+                        title: `New project <b>"${p.name}"</b> created.`,
+                        time: new Date(p.created_at),
+                        icon: 'fa-project-diagram',
+                        color: 'var(--primary)'
+                    })),
+                    ...(tasks || []).map(t => ({
+                        type: 'task',
+                        title: `Task <b>"${t.title}"</b> assigned to ${t.assigned_to_detail ? t.assigned_to_detail.name : 'Unassigned'}.`,
+                        time: new Date(t.created_at),
+                        icon: 'fa-check-circle',
+                        color: 'var(--success)'
+                    }))
+                ].sort((a, b) => b.time - a.time);
+
+                if (activities.length === 0) {
+                    feed.innerHTML = `
+                        <div class="activity-item">
+                            <div class="activity-icon"><i class="fas fa-info-circle"></i></div>
+                            <div class="activity-content">
+                                <p><b>No</b> Recent Activity Added.</p>
+                                <span class="activity-time">Just Now.</span>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                activities.forEach(act => {
+                    const item = document.createElement('div');
+                    item.className = 'activity-item animate-fade';
+                    item.innerHTML = `
+                        <div class="activity-icon" style="background: ${act.color}22; color: ${act.color};"><i class="fas ${act.icon}"></i></div>
+                        <div class="activity-content">
+                            <p>${act.title}</p>
+                            <span class="activity-time">${timeAgo(act.time)}</span>
+                        </div>
+                    `;
+                    feed.appendChild(item);
+                });
+            }
+
+            function timeAgo(date) {
+                const seconds = Math.floor((new Date() - date) / 1000);
+                let interval = seconds / 31536000;
+                if (interval > 1) return Math.floor(interval) + " years ago";
+                interval = seconds / 2592000;
+                if (interval > 1) return Math.floor(interval) + " months ago";
+                interval = seconds / 86400;
+                if (interval > 1) return Math.floor(interval) + " days ago";
+                interval = seconds / 3600;
+                if (interval > 1) return Math.floor(interval) + " hours ago";
+                interval = seconds / 60;
+                if (interval > 1) return Math.floor(interval) + " minutes ago";
+                return Math.floor(seconds) + " seconds ago";
+            }
+        });
+    </script>
+</body>
+
+</html>

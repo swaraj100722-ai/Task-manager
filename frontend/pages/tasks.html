@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks | Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .description-content {
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .description-truncated {
+            display: -webkit-box;
+            display: box;
+            -webkit-line-clamp: 6;
+            line-clamp: 6;
+            -webkit-box-orient: vertical;
+            box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .show-more-btn {
+            color: var(--primary);
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .show-more-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body data-theme="light">
+    <div id="screen-loader">
+        <div class="spinner"></div>
+        <p>LOADING...</p>
+    </div>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div style="display: flex; align-items: center; padding: 0 1rem; margin-bottom: 2rem;">
+                <div
+                    style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h2 style="font-size: 1.25rem;">TaskMaster</h2>
+            </div>
+            <nav class="nav-links">
+                <li class="nav-item"><a href="../landing.html" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard
+                        Overview</a></li>
+                <li class="nav-item"><a href="projects.html" class="nav-link"><i class="fas fa-project-diagram"></i>
+                        Projects</a></li>
+                <li class="nav-item"><a href="tasks.html" class="nav-link active"><i class="fas fa-check-double"></i>
+                        Tasks</a></li>
+                <li class="nav-item" id="adminNavItem" style="display: none;"><a href="admin.html" class="nav-link"><i
+                            class="fas fa-user-shield"></i> Team Members</a></li>
+                <li class="nav-item" id="aiNavItem"><a href="ai_helper.html" class="nav-link"><i
+                            class="fas fa-robot"></i> AI
+                        Assistant</a></li>
+                <li class="nav-item"><a href="settings.html" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
+                </li>
+            </nav>
+            <button onclick="Auth.confirmLogout()" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i>
+                Logout</button>
+        </aside>
+
+        <div style="flex: 1; display: flex; flex-direction: column; margin-left: 260px;">
+            <!-- Top Navbar -->
+            <nav class="top-navbar">
+                <h3>Task Management</h3>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button onclick="Theme.toggle()" class="theme-toggle"><i class="fas fa-moon"></i></button>
+                    <div style="display: flex; background: var(--border); border-radius: 8px; padding: 2px;">
+                        <button class="btn" onclick="setView('list')" id="listBtn"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: var(--bg-card);"><i
+                                class="fas fa-list"></i> List</button>
+                        <button class="btn" onclick="setView('kanban')" id="kanbanBtn"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: transparent;"><i
+                                class="fas fa-columns"></i> Kanban</button>
+                    </div>
+                    <button id="addTaskBtn" class="btn btn-primary" style="display: none;" onclick="openAddTaskModal()">
+                        <i class="fas fa-plus"></i> Create Task
+                    </button>
+                    <div
+                        style="display: flex; align-items: center; gap: 0.75rem; margin-left: 1rem; padding-left: 1rem;">
+                        <div id="userAvatar"
+                            style="width: 35px; height: 35px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                            ?</div>
+                        <span id="userName" style="font-size: 0.85rem; font-weight: 600; color: var(--text);">User
+                            Name</span>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="main-content" style="margin-left: 0;">
+                <!-- Filters -->
+                <div class="glass animate-fade"
+                    style="padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 0.7rem; margin-bottom: 4px;">Project</label>
+                        <select id="filterProject" class="form-input" style="padding: 0.5rem;" onchange="loadTasks()">
+                            <option value="">All Projects</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 0.7rem; margin-bottom: 4px;">Priority</label>
+                        <select id="filterPriority" class="form-input" style="padding: 0.5rem;" onchange="loadTasks()">
+                            <option value="">All Priorities</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 0.7rem; margin-bottom: 4px;">Status</label>
+                        <select id="filterStatus" class="form-input" style="padding: 0.5rem;" onchange="loadTasks()">
+                            <option value="">All Statuses</option>
+                            <option value="Todo">Todo</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Done">Done</option>
+                        </select>
+                    </div>
+                    <div id="assigneeFilterGroup" class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 0.7rem; margin-bottom: 4px;">Assigned To</label>
+                        <select id="filterAssignee" class="form-input" style="padding: 0.5rem;" onchange="loadTasks()">
+                            <option value="">All Assignees</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 0.7rem; margin-bottom: 4px;">Due Date</label>
+                        <select id="filterDueDate" class="form-input" style="padding: 0.5rem;" onchange="loadTasks()">
+                            <option value="">All Dates</option>
+                            <option value="today">Due Today</option>
+                            <option value="week">Due This Week</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+                        <button class="btn" id="sortToggle" onclick="toggleSort()"
+                            style="flex: 1; padding: 0.5rem; border: 1px solid var(--border); color: var(--primary); height: 42px;"
+                            title="Sort by Date">
+                            <i class="fas fa-arrow-up"></i> <span id="sortText">Latest</span>
+                        </button>
+                        <button class="btn" onclick="resetFilters()"
+                            style="flex: 1; padding: 0.5rem; border: 1px solid var(--border); color: var(--primary); height: 42px;"
+                            title="Reset Filters">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- List View -->
+                <div id="listView" class="glass animate-fade" style="padding: 1.5rem;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Task Title</th>
+                                <th>Project</th>
+                                <th>Assigned To</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Due Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskTableBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Kanban View -->
+                <div id="kanbanView" class="board" style="display: none;">
+                    <div class="board-column" id="col-Todo">
+                        <div class="column-header">
+                            <h3>To Do</h3>
+                        </div>
+                        <div class="task-list" id="list-Todo"></div>
+                    </div>
+                    <div class="board-column" id="col-InProgress">
+                        <div class="column-header">
+                            <h3>In Progress</h3>
+                        </div>
+                        <div class="task-list" id="list-InProgress"></div>
+                    </div>
+                    <div class="board-column" id="col-Done">
+                        <div class="column-header">
+                            <h3>Done</h3>
+                        </div>
+                        <div class="task-list" id="list-Done"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Task Modal -->
+    <div id="addTaskModal" class="glass"
+        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; padding: 2rem; z-index: 2000;">
+        <h3 id="taskModalTitle">Assign New Task</h3>
+        <form id="taskForm" style="margin-top: 1.5rem;">
+            <input type="hidden" id="editTaskId">
+            <div class="form-group">
+                <label class="form-label">Task Title</label>
+                <input type="text" id="taskTitle" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea id="taskDescription" class="form-input" rows="3"
+                    placeholder="Describe the task details..."></textarea>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Project</label>
+                    <select id="taskProject" class="form-input" required onchange="updateAssignees()"></select>
+                </div>
+                <div id="modalAssigneeGroup" class="form-group">
+                    <label class="form-label">Assign To</label>
+                    <select id="taskAssignee" class="form-input" required></select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label">Priority</label>
+                    <select id="taskPriority" class="form-input">
+                        <option value="Low">Low</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+                <div id="statusGroup" class="form-group" style="flex: 1; display: none;">
+                    <label class="form-label">Status</label>
+                    <select id="taskStatus" class="form-input">
+                        <option value="Todo">Todo</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Done">Done</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Due Date</label>
+                <input type="date" id="taskDueDate" class="form-input">
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="button" onclick="closeModals()" class="btn" style="flex: 1;">Cancel</button>
+                <button type="submit" id="taskSubmitBtn" class="btn btn-primary" style="flex: 1;">Create Task</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="taskDetailModal" class="glass"
+        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; overflow: hidden; padding: 2.5rem; z-index: 2000;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+            <div>
+                <span id="detailTaskPriority" class="badge"></span>
+                <h2 id="detailTaskTitle" style="margin-top: 0.5rem;"></h2>
+            </div>
+            <button onclick="closeModals()" class="btn" style="color: var(--text-muted);"><i
+                    class="fas fa-times"></i></button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div>
+                <h4 style="color: var(--primary); margin-bottom: 1rem;"><i class="fas fa-info-circle"></i> Task Details
+                </h4>
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-size: 0.75rem; color: var(--text-muted); display: block;">Description</label>
+                    <div id="detailTaskDesc" class="description-content description-truncated"></div>
+                    <button id="toggleDescBtn" class="show-more-btn" onclick="toggleDescription()">Show More</button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-muted);">Status</label>
+                        <p id="detailTaskStatus" style="font-weight: 600;"></p>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.75rem; color: var(--text-muted);">Due Date</label>
+                        <p id="detailTaskDue" style="font-weight: 600;"></p>
+                    </div>
+                </div>
+            </div>
+            <div
+                style="background: var(--bg-card); padding: 1rem; border-radius: 12px; border: 1px solid var(--border);">
+                <h4 style="color: var(--primary); margin-bottom: 1rem;"><i class="fas fa-project-diagram"></i> Project
+                    Info</h4>
+                <p id="detailProjName" style="font-weight: 700; font-size: 1rem;"></p>
+                <div id="detailProjDesc" class="description-content description-truncated"
+                    style="font-size: 0.8rem; color: var(--text-muted);"></div>
+                <button id="toggleProjDescBtn" class="show-more-btn"
+                    onclick="toggleText('detailProjDesc', 'toggleProjDescBtn')">Show More</button>
+                <hr style="margin: 1rem 0; border: none; border-top: 1px solid var(--border);">
+                <label style="font-size: 0.7rem; color: var(--text-muted);">Project Owner</label>
+                <p id="detailProjOwner" style="font-size: 0.85rem; font-weight: 600;"></p>
+            </div>
+        </div>
+
+        <div
+            style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted);"><i class="fas fa-user"></i> Assigned
+                    To</label>
+                <p id="detailAssignedTo" style="font-weight: 600;"></p>
+            </div>
+            <div style="text-align: right;">
+                <label style="font-size: 0.75rem; color: var(--text-muted);">Timeline</label>
+                <p style="font-size: 0.75rem;">Created: <span id="detailCreatedAt" style="font-weight: 600;"></span></p>
+                <p style="font-size: 0.75rem;">Last Modified: <span id="detailUpdatedAt"
+                        style="font-weight: 600;"></span></p>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; gap: 1rem;">
+                <button id="detailEditBtn" class="btn btn-primary" style="flex: 1;"><i class="fas fa-edit"></i> Edit
+                    Task</button>
+                <button id="detailDeleteBtn" class="btn btn-danger" style="flex: 1; display: none;"><i
+                        class="fas fa-trash"></i> Delete Task</button>
+            </div>
+            <button id="detailViewTaskBtn" class="btn btn-primary"
+                style="display: none; width: 100%; background: #10b981; border-color: #10b981;">
+                <i class="fas fa-external-link-alt"></i> View Task Submission
+            </button>
+        </div>
+    </div>
+
+    <!-- Submission Modal Overlay -->
+    <div id="submitModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; backdrop-filter: blur(6px); align-items: center; justify-content: center;">
+        <div class="glass animate-fade"
+            style="width: 500px; padding: 1.5rem; border: 1px solid var(--primary); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); overflow: hidden;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+                <h3 style="margin: 0; color: var(--primary); font-size: 1.2rem;"><i class="fas fa-paper-plane"></i>
+                    Final Submission</h3>
+                <button onclick="closeModals()" class="btn"
+                    style="padding: 0.4rem; background: transparent; color: var(--text-muted);"><i
+                        class="fas fa-times"></i></button>
+            </div>
+
+            <form id="submissionForm">
+                <input type="hidden" id="submitTaskId">
+
+                <div class="form-group"
+                    style="background: #fef3c7; padding: 0.75rem; border-radius: 10px; border: 1px dashed #f59e0b; margin-bottom: 1.5rem;">
+                    <label class="form-label"
+                        style="color: #92400e; font-weight: 800; font-size: 0.8rem; margin-bottom: 0.4rem;"><i
+                            class="fas fa-id-card"></i> Employee ID Verification</label>
+                    <input type="text" id="submitEmpId" class="form-input" placeholder="Enter your registered ID"
+                        required
+                        style="border-color: #f59e0b44; background: white; padding: 0.5rem 0.75rem; color: #1e293b; font-weight: 600;">
+                    <p style="font-size: 0.65rem; color: #b45309; margin-top: 5px; font-weight: 600;">Must match your
+                        profile ID to finalize submission.</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 0.8rem; margin-bottom: 0.4rem;"><i
+                                class="fab fa-github"></i> Code Repository</label>
+                        <input type="url" id="submitCode" class="form-input" placeholder="GitHub Link" required
+                            style="padding: 0.5rem 0.75rem;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 0.8rem; margin-bottom: 0.4rem;"><i
+                                class="fas fa-images"></i> Design Images</label>
+                        <div class="file-upload-wrapper"
+                            style="position: relative; border: 2px dashed var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; background: #f8fafc; transition: all 0.3s; cursor: pointer;"
+                            onclick="document.getElementById('submitDesign').click()">
+                            <i class="fas fa-cloud-upload-alt"
+                                style="font-size: 1.5rem; color: var(--primary); margin-bottom: 0.5rem;"></i>
+                            <p style="font-size: 0.75rem; margin: 0; color: var(--text-muted);">Click or drag images to
+                                upload</p>
+                            <input type="file" id="submitDesign" multiple accept="image/*" required
+                                style="display: none;" onchange="updateFileStatus(this)">
+                            <div id="fileStatus"
+                                style="font-size: 0.7rem; color: var(--primary); font-weight: 600; margin-top: 5px; display: none;">
+                            </div>
+                        </div>
+                        <div id="imagePreviewContainer"
+                            style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                            <!-- Image previews will appear here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label" style="font-size: 0.8rem; margin-bottom: 0.4rem;"><i
+                            class="fas fa-file-alt"></i> Supporting Documents</label>
+                    <input type="url" id="submitDocs" class="form-input" placeholder="PDF / Drive link" required
+                        style="padding: 0.5rem 0.75rem;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label" style="font-size: 0.8rem; margin-bottom: 0.4rem;"><i
+                            class="fas fa-comment-dots"></i> Analysis Report</label>
+                    <textarea id="submitReports" class="form-input" rows="3" placeholder="Brief summary of your work..."
+                        required style="padding: 0.5rem 0.75rem; font-size: 0.85rem;"></textarea>
+                </div>
+
+                <div
+                    style="display: flex; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                    <button type="button" onclick="closeModals()" class="btn"
+                        style="flex: 1; background: var(--border); padding: 0.6rem;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1; padding: 0.6rem;">Finalize
+                        Submission</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        const user = Auth.getUser();
+        const isAdmin = user && user.email && user.email.endsWith('@task.com');
+        let allProjects = [];
+        let currentView = 'list';
+        let sortOrder = 'desc'; // 'desc' = latest, 'asc' = oldest
+
+        if (user) {
+            if (document.getElementById('userName')) document.getElementById('userName').textContent = user.name;
+            if (document.getElementById('userAvatar')) document.getElementById('userAvatar').textContent = user.name[0];
+
+            if (isAdmin) {
+                document.getElementById('addTaskBtn').style.display = 'flex';
+                document.getElementById('adminNavItem').style.display = 'block';
+                if (document.getElementById('detailDeleteBtn')) document.getElementById('detailDeleteBtn').style.display = 'block';
+            } else {
+                document.getElementById('aiNavItem').style.display = 'none';
+                const assigneeFilter = document.getElementById('assigneeFilterGroup');
+                if (assigneeFilter) assigneeFilter.style.display = 'none';
+                const modalAssignee = document.getElementById('modalAssigneeGroup');
+                if (modalAssignee) modalAssignee.style.display = 'none';
+            }
+        }
+
+        async function init() {
+            API.showLoader();
+            const projects = await API.getProjects();
+            if (projects) {
+                allProjects = projects;
+                const filter = document.getElementById('filterProject');
+                const modalSelect = document.getElementById('taskProject');
+                projects.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.name;
+                    filter.appendChild(opt.cloneNode(true));
+                    modalSelect.appendChild(opt);
+                });
+            }
+
+            // Populate Assignees Filter
+            const users = await API.getUsers();
+            if (users) {
+                const assigneeFilter = document.getElementById('filterAssignee');
+                users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.id;
+                    opt.textContent = u.name;
+                    assigneeFilter.appendChild(opt);
+                });
+            }
+            await loadTasks();
+            API.hideLoader();
+        }
+
+        async function loadTasks() {
+            const projId = document.getElementById('filterProject').value;
+            const priority = document.getElementById('filterPriority').value;
+            const status = document.getElementById('filterStatus').value;
+            const assignee = document.getElementById('filterAssignee').value;
+            const dateFilter = document.getElementById('filterDueDate').value;
+
+            let url = `/tasks/`;
+            const params = new URLSearchParams();
+            if (projId) params.append('project', projId);
+            if (priority) params.append('priority', priority);
+            if (status) params.append('status', status);
+            if (assignee) params.append('assigned_to', assignee);
+            if (params.toString()) url += `?${params.toString()}`;
+
+            let tasks = await API.request(url);
+            if (tasks) {
+                // Apply sorting
+                tasks.sort((a, b) => {
+                    const dateA = new Date(a.created_at);
+                    const dateB = new Date(b.created_at);
+                    return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+                });
+
+                // Apply Due Date filtering in JS for simplicity
+                if (dateFilter) {
+                    const now = new Date();
+                    now.setHours(0, 0, 0, 0);
+                    const weekEnd = new Date(now);
+                    weekEnd.setDate(now.getDate() + 7);
+
+                    tasks = tasks.filter(t => {
+                        if (!t.due_date) return false;
+                        const d = new Date(t.due_date);
+                        d.setHours(0, 0, 0, 0);
+
+                        if (dateFilter === 'today') return d.getTime() === now.getTime();
+                        if (dateFilter === 'week') return d >= now && d <= weekEnd;
+                        if (dateFilter === 'overdue') return d < now && t.status !== 'Done';
+                        return true;
+                    });
+                }
+                renderList(tasks);
+                renderKanban(tasks);
+            }
+        }
+
+        function resetFilters() {
+            document.getElementById('filterProject').value = '';
+            document.getElementById('filterPriority').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterAssignee').value = '';
+            document.getElementById('filterDueDate').value = '';
+            sortOrder = 'desc';
+            updateSortUI();
+            loadTasks();
+        }
+
+        function toggleSort() {
+            sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+            updateSortUI();
+            loadTasks();
+        }
+
+        function updateSortUI() {
+            const icon = document.querySelector('#sortToggle i');
+            const text = document.getElementById('sortText');
+            if (sortOrder === 'desc') {
+                icon.className = 'fas fa-arrow-up';
+                text.textContent = 'Latest';
+            } else {
+                icon.className = 'fas fa-arrow-down';
+                text.textContent = 'Oldest';
+            }
+        }
+
+        function renderList(tasks) {
+            const tbody = document.getElementById('taskTableBody');
+            tbody.innerHTML = '';
+            tasks.forEach(t => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><b style="cursor: pointer; color: var(--primary);" onclick='showTaskDetail(${JSON.stringify(t)})'>${t.title}</b></td>
+                    <td>${t.project_detail ? t.project_detail.name : 'No Project'}</td>
+                    <td>${t.assigned_to_detail ? t.assigned_to_detail.name : 'Unassigned'}</td>
+                    <td><span class="badge priority-${t.priority}">${t.priority}</span></td>
+                    <td><span class="badge" style="background: var(--border);">${t.status}</span></td>
+                    <td>${t.due_date ? new Date(t.due_date).toLocaleDateString() : '-'}</td>
+                    <td>
+                        <div style="display: flex; gap: 5px;">
+                            ${isAdmin ?
+                        `<button onclick='openEditTaskModal(${JSON.stringify(t)})' class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; color: var(--primary);"><i class="fas fa-edit"></i></button>` :
+                        (t.status === 'Todo' ?
+                            `<button onclick="startTask(${t.id})" class="btn btn-primary" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;"><i class="fas fa-play"></i> Start</button>` :
+                            (t.status === 'In Progress' ?
+                                `<button onclick="openSubmitModal(${t.id})" class="btn btn-primary" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; background: #10b981;"><i class="fas fa-paper-plane"></i> Submit</button>` :
+                                `<span style="font-size: 0.7rem; color: #10b981; font-weight: 600;"><i class="fas fa-check-circle"></i> Completed</span>`
+                            )
+                        )
+                    }
+                            ${isAdmin ? `<button onclick="deleteTask(${t.id})" class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; color: var(--danger);"><i class="fas fa-trash"></i></button>` : ''}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderKanban(tasks) {
+            const columns = {
+                'Todo': document.getElementById('list-Todo'),
+                'In Progress': document.getElementById('list-InProgress'),
+                'Done': document.getElementById('list-Done')
+            };
+            Object.values(columns).forEach(c => c.innerHTML = '');
+
+            tasks.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'task-card glass';
+                card.onclick = (e) => {
+                    if (e.target.tagName !== 'I' && e.target.tagName !== 'BUTTON') {
+                        showTaskDetail(t);
+                    }
+                };
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span class="badge priority-${t.priority}" style="font-size: 0.6rem;">${t.priority}</span>
+                    </div>
+                    <h4 style="margin-bottom: 0.5rem;">${t.title}</h4>
+                    <p style="font-size: 0.7rem; color: var(--text-muted);">${t.project_detail ? t.project_detail.name : 'No Project'}</p>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                        <div id="userAvatar" style="width: 20px; height: 20px; border-radius: 50%; background: var(--primary); color: white; font-size: 0.5rem; display: flex; align-items: center; justify-content: center;">${(t.assigned_to_detail && t.assigned_to_detail.name) ? t.assigned_to_detail.name[0] : '?'}</div>
+                        <span style="font-size: 0.65rem;">${(t.assigned_to_detail && t.assigned_to_detail.name) ? t.assigned_to_detail.name : 'Unassigned'}</span>
+                    </div>
+                    <div style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 0.5rem; display: flex; justify-content: flex-end; gap: 10px;">
+                        ${isAdmin ?
+                        `<i onclick='openEditTaskModal(${JSON.stringify(t)})' class="fas fa-edit" style="cursor: pointer; font-size: 0.8rem; color: var(--primary);"></i>` :
+                        (t.status === 'Todo' ?
+                            `<button onclick="startTask(${t.id})" class="btn btn-primary" style="padding: 0.2rem 0.5rem; font-size: 0.6rem;"><i class="fas fa-play"></i> Start</button>` :
+                            (t.status === 'In Progress' ?
+                                `<button onclick="openSubmitModal(${t.id})" class="btn btn-primary" style="padding: 0.2rem 0.5rem; font-size: 0.6rem; background: #10b981;"><i class="fas fa-paper-plane"></i> Submit</button>` :
+                                `<span style="font-size: 0.6rem; color: #10b981;"><i class="fas fa-check-circle"></i> Done</span>`
+                            )
+                        )
+                    }
+                        ${isAdmin ? `<i onclick="deleteTask(${t.id})" class="fas fa-trash" style="cursor: pointer; font-size: 0.8rem; color: var(--danger);"></i>` : ''}
+                    </div>
+                `;
+                const colKey = t.status === 'In Progress' ? 'InProgress' : t.status;
+                if (columns[t.status]) columns[t.status].appendChild(card);
+                else if (t.status === 'In Progress') columns['InProgress'].appendChild(card);
+            });
+        }
+
+        function setView(view) {
+            currentView = view;
+            document.getElementById('listView').style.display = view === 'list' ? 'block' : 'none';
+            document.getElementById('kanbanView').style.display = view === 'kanban' ? 'grid' : 'none';
+            document.getElementById('listBtn').style.background = view === 'list' ? 'var(--bg-card)' : 'transparent';
+            document.getElementById('kanbanBtn').style.background = view === 'kanban' ? 'var(--bg-card)' : 'transparent';
+        }
+
+        let currentTaskId = null;
+
+        function showTaskDetail(t) {
+            currentTaskId = t.id;
+            document.getElementById('detailTaskTitle').textContent = t.title;
+            // Setup truncation for Task Description
+            setupTruncation('detailTaskDesc', 'toggleDescBtn', t.description || 'No description provided.');
+
+            // Setup truncation for Project Description
+            setupTruncation('detailProjDesc', 'toggleProjDescBtn', t.project_detail.description || 'No project description.');
+
+            document.getElementById('detailTaskPriority').textContent = t.priority;
+            document.getElementById('detailTaskPriority').className = `badge priority-${t.priority}`;
+            document.getElementById('detailTaskStatus').textContent = t.status;
+            document.getElementById('detailTaskDue').textContent = t.due_date ? new Date(t.due_date).toLocaleDateString() : 'No deadline';
+
+            document.getElementById('detailProjName').textContent = t.project_detail ? t.project_detail.name : 'No Project';
+            document.getElementById('detailProjDesc').textContent = t.project_detail.description || 'No project description.';
+            document.getElementById('detailProjOwner').textContent = t.project_detail ? t.project_detail.owner.name : 'Unknown';
+
+            document.getElementById('detailAssignedTo').textContent = t.assigned_to_detail ? t.assigned_to_detail.name : 'Unassigned';
+            document.getElementById('detailCreatedAt').textContent = new Date(t.created_at).toLocaleString();
+            document.getElementById('detailUpdatedAt').textContent = new Date(t.updated_at).toLocaleString();
+
+            document.getElementById('detailEditBtn').onclick = () => { closeModals(); openEditTaskModal(t); };
+            document.getElementById('detailDeleteBtn').onclick = () => { closeModals(); deleteTask(t.id); };
+
+            // View Task Button Logic
+            const viewBtn = document.getElementById('detailViewTaskBtn');
+            if (isAdmin && t.status === 'Done') {
+                viewBtn.style.display = 'block';
+                viewBtn.onclick = () => {
+                    window.open(`submission_detail.html?id=${t.id}`, '_blank');
+                };
+            } else {
+                viewBtn.style.display = 'none';
+            }
+
+            document.getElementById('taskDetailModal').style.display = 'block';
+        }
+
+        function setupTruncation(elId, btnId, text) {
+            const el = document.getElementById(elId);
+            const btn = document.getElementById(btnId);
+            el.textContent = text;
+            el.classList.add('description-truncated');
+            btn.textContent = 'Show More';
+            btn.style.display = 'none';
+            setTimeout(() => {
+                if (el.scrollHeight > el.clientHeight) btn.style.display = 'block';
+            }, 50);
+        }
+
+        function toggleText(elId, btnId) {
+            const el = document.getElementById(elId);
+            const btn = document.getElementById(btnId);
+            if (el.classList.contains('description-truncated')) {
+                el.classList.remove('description-truncated');
+                btn.textContent = 'Show Less';
+            } else {
+                el.classList.add('description-truncated');
+                btn.textContent = 'Show More';
+            }
+        }
+
+        function toggleDescription() { toggleText('detailTaskDesc', 'toggleDescBtn'); }
+
+        function updateFileStatus(input) {
+            const status = document.getElementById('fileStatus');
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            previewContainer.innerHTML = ''; // Clear previous previews
+
+            if (input.files.length > 0) {
+                status.textContent = `${input.files.length} file(s) selected`;
+                status.style.display = 'block';
+
+                // Generate previews
+                Array.from(input.files).forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.width = '25px';
+                            img.style.height = '25px';
+                            img.style.objectFit = 'cover';
+                            img.style.borderRadius = '8px';
+                            img.style.border = '1px solid var(--border)';
+                            img.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                            previewContainer.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            } else {
+                status.style.display = 'none';
+            }
+        }
+
+        async function startTask(id) {
+            const success = await API.request(`/tasks/${id}/`, 'PATCH', { status: 'In Progress' });
+            if (success) {
+                Notification.show('Task started! Work hard.');
+                loadTasks();
+            }
+        }
+
+        function openSubmitModal(id) {
+            document.getElementById('submitTaskId').value = id;
+            document.getElementById('submissionForm').reset();
+            document.getElementById('fileStatus').style.display = 'none';
+            document.getElementById('submitModal').style.display = 'flex';
+        }
+
+        document.getElementById('submissionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const id = document.getElementById('submitTaskId').value;
+            const enteredId = document.getElementById('submitEmpId').value;
+
+            if (enteredId !== user.employee_id) {
+                Notification.show('Employee ID mismatch! Access denied.', 'danger');
+                return;
+            }
+
+            API.setButtonLoading(btn, true, 'Verifying...');
+
+            const formData = new FormData();
+            formData.append('status', 'Done');
+            formData.append('submission_code', document.getElementById('submitCode').value);
+            formData.append('submission_docs', document.getElementById('submitDocs').value);
+            formData.append('submission_reports', document.getElementById('submitReports').value);
+            formData.append('submission_date', new Date().toISOString());
+
+            const fileInput = document.getElementById('submitDesign');
+            if (fileInput.files.length > 0) {
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('design_images', fileInput.files[i]);
+                }
+            }
+
+            const success = await API.request(`/tasks/${id}/`, 'PATCH', formData);
+            if (success) {
+                Notification.show('Verification successful! Task submitted to Admin.');
+                closeModals();
+                loadTasks();
+            }
+            API.setButtonLoading(btn, false);
+        });
+
+        function openAddTaskModal() {
+            document.getElementById('taskModalTitle').textContent = 'Assign New Task';
+            document.getElementById('taskSubmitBtn').textContent = 'Create Task';
+            document.getElementById('statusGroup').style.display = 'none';
+            document.getElementById('editTaskId').value = '';
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDescription').value = '';
+            document.getElementById('taskDueDate').value = '';
+            document.getElementById('addTaskModal').style.display = 'block';
+            updateAssignees();
+        }
+
+        function openEditTaskModal(t) {
+            document.getElementById('taskModalTitle').textContent = 'Edit Task';
+            document.getElementById('taskSubmitBtn').textContent = 'Update Task';
+            document.getElementById('statusGroup').style.display = user.role === 'Admin' ? 'none' : 'block';
+            document.getElementById('editTaskId').value = t.id;
+            document.getElementById('taskTitle').value = t.title;
+            document.getElementById('taskDescription').value = t.description || '';
+            document.getElementById('taskProject').value = t.project;
+            updateAssignees();
+            document.getElementById('taskAssignee').value = t.assigned_to;
+            document.getElementById('taskPriority').value = t.priority;
+            document.getElementById('taskStatus').value = t.status;
+            document.getElementById('taskDueDate').value = t.due_date;
+            document.getElementById('addTaskModal').style.display = 'block';
+        }
+
+        async function deleteTask(id) {
+            Notification.confirm('Are you sure you want to delete this task?', async () => {
+                const success = await API.request(`/tasks/${id}/`, 'DELETE');
+                if (success) {
+                    Notification.show('Task deleted');
+                    loadTasks();
+                }
+            });
+        }
+
+        function closeModals() {
+            document.getElementById('addTaskModal').style.display = 'none';
+            document.getElementById('taskDetailModal').style.display = 'none';
+            if (document.getElementById('submitModal')) document.getElementById('submitModal').style.display = 'none';
+        }
+
+        function updateAssignees() {
+            const projId = document.getElementById('taskProject').value;
+            const select = document.getElementById('taskAssignee');
+            select.innerHTML = '';
+
+            if (!projId) return;
+
+            // Handle both array and paginated response { results: [] }
+            const projectsArray = Array.isArray(allProjects) ? allProjects : (allProjects.results || []);
+            const project = projectsArray.find(p => p.id == projId);
+
+            if (project) {
+                if (project.members && project.members.length > 0) {
+                    project.members.forEach(m => {
+                        const opt = document.createElement('option');
+                        opt.value = m.id;
+                        opt.textContent = m.name;
+                        select.appendChild(opt);
+                    });
+                }
+
+                if (project.owner) {
+                    const ownerOpt = document.createElement('option');
+                    ownerOpt.value = project.owner.id;
+                    ownerOpt.textContent = project.owner.name + " (Owner)";
+                    select.appendChild(ownerOpt);
+                }
+            } else {
+                console.warn("Project not found in allProjects list:", projId);
+            }
+        }
+
+        document.getElementById('taskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.submitter || e.target.querySelector('button[type="submit"]');
+            API.setButtonLoading(btn, true);
+            const id = document.getElementById('editTaskId').value;
+            const data = {
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                project: document.getElementById('taskProject').value,
+                assigned_to: document.getElementById('taskAssignee').value,
+                priority: document.getElementById('taskPriority').value,
+                due_date: document.getElementById('taskDueDate').value,
+                status: id ? document.getElementById('taskStatus').value : 'Todo'
+            };
+
+            let success;
+            if (id) {
+                success = await API.request(`/tasks/${id}/`, 'PATCH', data);
+            } else {
+                success = await API.createTask(data);
+            }
+
+            if (success) {
+                Notification.show(id ? 'Task updated' : 'Task created');
+                closeModals();
+                loadTasks();
+            }
+            API.setButtonLoading(btn, false);
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant | Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .ai-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .ai-result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        [data-theme="dark"] .ai-result {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body data-theme="light">
+    <div id="screen-loader">
+        <div class="spinner"></div>
+        <p>LOADING...</p>
+    </div>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div style="display: flex; align-items: center; padding: 0 1rem; margin-bottom: 2rem;">
+                <div
+                    style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h2 style="font-size: 1.25rem;">TaskMaster</h2>
+            </div>
+            <nav class="nav-links">
+                <li class="nav-item"><a href="../landing.html" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard
+                        Overview</a></li>
+                <li class="nav-item"><a href="projects.html" class="nav-link"><i class="fas fa-project-diagram"></i>
+                        Projects</a></li>
+                <li class="nav-item"><a href="tasks.html" class="nav-link"><i class="fas fa-check-double"></i> Tasks</a>
+                </li>
+                <li class="nav-item" id="adminNavItem" style="display: none;"><a href="admin.html" class="nav-link"><i
+                            class="fas fa-user-shield"></i> Team Members</a></li>
+                <li class="nav-item" id="aiNavItem"><a href="ai_helper.html" class="nav-link active"><i
+                            class="fas fa-robot"></i> AI Assistant</a></li>
+                <li class="nav-item"><a href="settings.html" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
+                </li>
+            </nav>
+            <button onclick="Auth.confirmLogout()" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i>
+                Logout</button>
+        </aside>
+
+        <div style="flex: 1; display: flex; flex-direction: column; margin-left: 260px;">
+            <nav class="top-navbar">
+                <h3>AI Assistant</h3>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button onclick="Theme.toggle()" class="theme-toggle"><i class="fas fa-moon"></i></button>
+                    <div id="userAvatar"
+                        style="width: 35px; height: 35px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                        A</div>
+                </div>
+            </nav>
+
+            <main class="main-content" style="margin-left: 0;">
+                <div class="ai-panel">
+                    <!-- Task Helper -->
+                    <div class="glass animate-fade" style="padding: 2rem;">
+                        <h3><i class="fas fa-magic"></i> Task Intelligence</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Let AI help you break down tasks or
+                            suggest priorities.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">Task Description</label>
+                            <textarea id="aiInput" class="form-input" rows="4"
+                                placeholder="Describe the task here..."></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem;">
+                            <button id="aiBreakDownBtn" class="btn btn-primary" style="flex: 1;">Break Down</button>
+                            <button id="aiSuggestBtn" class="btn"
+                                style="flex: 1; border: 1px solid var(--primary); color: var(--primary);">Suggest
+                                Priority</button>
+                        </div>
+
+                        <div id="taskAiResult" class="ai-result" style="display: none;"></div>
+                    </div>
+
+                    <!-- Project Summary -->
+                    <div class="glass animate-fade" style="padding: 2rem; animation-delay: 0.1s;">
+                        <h3><i class="fas fa-file-alt"></i> Project Summary</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Generate a high-level summary of any
+                            project's progress.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">Select Project</label>
+                            <select id="summaryProject" class="form-input"></select>
+                        </div>
+
+                        <button id="aiSummaryBtn" class="btn btn-primary" style="width: 100%;">Generate
+                            Project Summary</button>
+
+                        <div id="summaryAiResult" class="ai-result" style="display: none;"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = Auth.getUser();
+            const isAdmin = user && user.email && user.email.endsWith('@task.com');
+            if (!isAdmin) {
+                window.location.href = '../index.html';
+            } else {
+                if (document.getElementById('adminNavItem')) {
+                    document.getElementById('adminNavItem').style.display = 'block';
+                }
+            }
+
+            async function init() {
+                API.showLoader();
+                const projects = await API.getProjects();
+                API.hideLoader();
+                if (projects) {
+                    const select = document.getElementById('summaryProject');
+                    projects.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.id;
+                        opt.textContent = p.name;
+                        select.appendChild(opt);
+                    });
+                }
+            }
+
+            init();
+
+            document.getElementById('aiBreakDownBtn').addEventListener('click', async () => {
+                const input = document.getElementById('aiInput').value;
+                const resultDiv = document.getElementById('taskAiResult');
+                if (!input) {
+                    Notification.show('Please enter a task description first.', 'info');
+                    return;
+                }
+
+                const btn = document.getElementById('aiBreakDownBtn');
+                API.setButtonLoading(btn, true, 'Analyzing...');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '<div class="spinner-small"></div> Generating subtasks...';
+
+                const response = await API.aiGenerateTasks(input);
+                if (response && response.subtasks) {
+                    resultDiv.innerHTML = response.subtasks.replace(/\n/g, '<br>');
+                } else {
+                    resultDiv.textContent = 'AI service currently unavailable. Please try again later.';
+                }
+                API.setButtonLoading(btn, false);
+            });
+
+            document.getElementById('aiSuggestBtn').addEventListener('click', async () => {
+                const input = document.getElementById('aiInput').value;
+                const resultDiv = document.getElementById('taskAiResult');
+                if (!input) {
+                    Notification.show('Please enter a task description first.', 'info');
+                    return;
+                }
+
+                const btn = document.getElementById('aiSuggestBtn');
+                API.setButtonLoading(btn, true, 'Analyzing...');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '<div class="spinner-small"></div> Analyzing priority...';
+
+                const response = await API.aiSuggestPriority("AI Analysis", input);
+                if (response && response.suggestion) {
+                    resultDiv.innerHTML = response.suggestion.replace(/\n/g, '<br>');
+                } else {
+                    resultDiv.textContent = 'AI service currently unavailable. Please try again.';
+                }
+                API.setButtonLoading(btn, false);
+            });
+
+            document.getElementById('aiSummaryBtn').addEventListener('click', async () => {
+                const projId = document.getElementById('summaryProject').value;
+                const resultDiv = document.getElementById('summaryAiResult');
+                if (!projId) return;
+
+                const btn = document.getElementById('aiSummaryBtn');
+                API.setButtonLoading(btn, true, 'Generating...');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '<div class="spinner-small"></div> Generating summary...';
+
+                const tasks = await API.getTasks(projId);
+                const taskStr = tasks.map(t => `${t.title} (${t.status})`).join(', ');
+
+                const response = await API.request('/api/ai/summary/', 'POST', { tasks: taskStr });
+                if (response && response.summary) {
+                    resultDiv.innerHTML = response.summary.replace(/\n/g, '<br>');
+                } else {
+                    resultDiv.textContent = 'Failed to generate summary. Ensure project has tasks.';
+                }
+                API.setButtonLoading(btn, false);
+            });
+
+
+        });
+    </script>
+</body>
+
+</html>

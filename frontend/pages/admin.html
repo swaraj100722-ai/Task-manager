@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Members | Admin Panel</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body data-theme="light">
+    <div id="screen-loader">
+        <div class="spinner"></div>
+        <p>LOADING...</p>
+    </div>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div style="display: flex; align-items: center; padding: 0 1rem; margin-bottom: 2rem;">
+                <div
+                    style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h2 style="font-size: 1.25rem;">TaskMaster</h2>
+            </div>
+            <nav class="nav-links">
+                <li class="nav-item"><a href="../landing.html" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard
+                        Overview</a></li>
+                <li class="nav-item"><a href="projects.html" class="nav-link"><i class="fas fa-project-diagram"></i>
+                        Projects</a></li>
+                <li class="nav-item"><a href="tasks.html" class="nav-link"><i class="fas fa-check-double"></i> Tasks</a>
+                </li>
+                <li class="nav-item" id="adminNavItem"><a href="admin.html" class="nav-link active"><i
+                            class="fas fa-user-shield"></i>
+                        Team Members</a></li>
+                <li class="nav-item" id="aiNavItem"><a href="ai_helper.html" class="nav-link"><i
+                            class="fas fa-robot"></i> AI
+                        Assistant</a></li>
+                <li class="nav-item"><a href="settings.html" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
+                </li>
+            </nav>
+            <button onclick="Auth.confirmLogout()" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i>
+                Logout</button>
+        </aside>
+
+        <div style="flex: 1; display: flex; flex-direction: column; margin-left: 260px;">
+            <!-- Top Navbar -->
+            <nav class="top-navbar">
+                <h3>Team Members</h3>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button onclick="Theme.toggle()" class="theme-toggle"><i class="fas fa-moon"></i></button>
+                    <button class="btn btn-primary" onclick="openAddMemberModal()"><i class="fas fa-plus"></i> Add
+                        Member</button>
+                    <div id="userAvatar"
+                        style="width: 35px; height: 35px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                        A</div>
+                </div>
+            </nav>
+
+            <main class="main-content" style="margin-left: 0;">
+                <div class="glass animate-fade" style="padding: 2rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2>All Team Members</h2>
+                        <div class="form-group" style="margin-bottom: 0; width: 300px;">
+                            <input type="text" id="userSearch" class="form-input"
+                                placeholder="Search by Email or Employee ID..." onkeyup="filterUsers()">
+                        </div>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Emp ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Projects</th>
+                                <th>Joined Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <!-- Loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Member Modal (Add/Edit) -->
+    <div id="memberModal" class="glass"
+        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 450px; padding: 2rem; z-index: 2000;">
+        <h3 id="modalTitle">Add New Team Member</h3>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1.5rem;">Manage team member account
+            details.</p>
+        <form id="memberForm">
+            <input type="hidden" id="editUserId">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="newName" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Employee ID</label>
+                <input type="text" id="empId" class="form-input" readonly
+                    style="background: var(--bg-card); border: 2px dashed var(--primary); cursor: not-allowed; font-weight: 800; color: #f59e0b; font-family: monospace; font-size: 1.1rem; text-align: center; letter-spacing: 2px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="newEmail" class="form-input" required>
+            </div>
+            <div id="passwordGroup" class="form-group">
+                <label class="form-label">Temporary Password</label>
+                <input type="password" id="newPassword" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Role</label>
+                <select id="newRole" class="form-input">
+                    <option value="Member">Member</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="button" onclick="closeModal()" class="btn" style="flex: 1;">Cancel</button>
+                <button type="submit" id="submitBtn" class="btn btn-primary" style="flex: 1;">Create Account</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Member Detail Modal -->
+    <div id="memberDetailModal" class="glass"
+        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; padding: 2.5rem; z-index: 2000;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div id="detailAvatar"
+                    style="width: 60px; height: 60px; border-radius: 15px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700;">
+                </div>
+                <div>
+                    <h3 id="detailName" style="margin: 0;"></h3>
+                    <span id="detailRoleBadge" class="badge"></span>
+                </div>
+            </div>
+            <button onclick="closeModal()" class="btn" style="color: var(--text-muted);"><i
+                    class="fas fa-times"></i></button>
+        </div>
+
+        <div
+            style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; background: var(--bg-card); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border);">
+            <div>
+                <label
+                    style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Employee
+                    ID</label>
+                <p id="detailEmpId" style="font-family: monospace; font-weight: 700; color: #f59e0b; margin: 0;"></p>
+            </div>
+            <div>
+                <label
+                    style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Status</label>
+                <p style="margin: 0;"><span class="badge"
+                        style="background: #10b98122; color: #10b981; border: 1px solid #10b98133;">Active</span></p>
+            </div>
+            <div style="grid-column: span 2;">
+                <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Email
+                    Address</label>
+                <p id="detailEmail" style="font-weight: 600; margin: 0;"></p>
+            </div>
+            <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Joined
+                    On</label>
+                <p id="detailJoined" style="font-weight: 600; margin: 0;"></p>
+            </div>
+            <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Account
+                    Type</label>
+                <p id="detailType" style="font-weight: 600; margin: 0;"></p>
+            </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">TASK COMPLETION
+                    PROGRESS</label>
+                <span id="progressPercent"
+                    style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">0%</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                <div id="progressBar"
+                    style="width: 0%; height: 100%; background: var(--primary); transition: width 0.5s ease;"></div>
+            </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div>
+                <h4 style="font-size: 0.85rem; color: var(--primary); margin-bottom: 0.75rem;"><i
+                        class="fas fa-project-diagram"></i> PROJECTS</h4>
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 5px;">ACTIVE
+                </div>
+                <div id="detailProjectListActive"
+                    style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+                </div>
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 5px;">HISTORY
+                    (COMPLETED)</div>
+                <div id="detailProjectListHistory"
+                    style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem;"></div>
+            </div>
+            <div>
+                <h4 style="font-size: 0.85rem; color: var(--primary); margin-bottom: 0.75rem;"><i
+                        class="fas fa-tasks"></i> TASKS</h4>
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 5px;">IN
+                    PROGRESS</div>
+                <div id="detailTaskListActive"
+                    style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; max-height: 100px; overflow-y: auto; padding-right: 5px;">
+                </div>
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 5px;">
+                    COMPLETED</div>
+                <div id="detailTaskListHistory"
+                    style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem; max-height: 100px; overflow-y: auto; padding-right: 5px;">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button id="detailEditBtn" class="btn btn-primary" style="flex: 1;"><i class="fas fa-user-edit"></i> Edit
+                Member</button>
+            <button id="detailDeleteBtn" class="btn btn-danger" style="padding: 0.8rem 1.2rem;"><i
+                    class="fas fa-trash"></i></button>
+        </div>
+    </div>
+
+    <!-- Nested Mini Detail Modals -->
+    <div id="miniDetailModal" class="glass"
+        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 400px; padding: 2rem; z-index: 3000; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 id="miniTitle"></h3>
+            <button onclick="document.getElementById('miniDetailModal').style.display='none'" class="btn"><i
+                    class="fas fa-times"></i></button>
+        </div>
+        <p id="miniDesc" style="font-size: 0.85rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 1.5rem;">
+        </p>
+        <div id="miniStats"
+            style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--border); padding-top: 1rem; margin-bottom: 1.5rem;">
+        </div>
+
+        <!-- Task Submission Info (Only for Tasks) -->
+        <div id="submissionInfo" style="display: none; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+            <h4 style="font-size: 0.8rem; color: var(--primary); margin-bottom: 1rem;"><i
+                    class="fas fa-paper-plane"></i> SUBMISSION</h4>
+            <div id="submissionLinks"
+                style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;"></div>
+            <div id="ratingSection" style="padding-top: 1.5rem; border-top: 1px dashed var(--border);">
+                <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">ADMIN RATING</label>
+                <div id="starRating"
+                    style="display: flex; gap: 8px; margin-top: 5px; font-size: 1.2rem; color: #cbd5e1;">
+                    <i class="fas fa-star" onclick="rateTask(1)" style="cursor: pointer;"></i>
+                    <i class="fas fa-star" onclick="rateTask(2)" style="cursor: pointer;"></i>
+                    <i class="fas fa-star" onclick="rateTask(3)" style="cursor: pointer;"></i>
+                    <i class="fas fa-star" onclick="rateTask(4)" style="cursor: pointer;"></i>
+                    <i class="fas fa-star" onclick="rateTask(5)" style="cursor: pointer;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        const user = Auth.getUser();
+        const isAdmin = user && user.email && user.email.endsWith('@task.com');
+        if (!isAdmin) {
+            window.location.href = '../index.html';
+        }
+        let allUsers = [];
+
+        async function init() {
+            API.showLoader();
+            const users = await API.getUsers();
+            API.hideLoader();
+            if (users) {
+                allUsers = users;
+                renderUsers(users);
+            }
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+            users.forEach(u => {
+                const row = document.createElement('tr');
+                row.style.cursor = 'pointer';
+                row.onclick = (e) => {
+                    if (!e.target.closest('button')) showUserDetail(u);
+                };
+                row.innerHTML = `
+                    <td><span style="font-family: 'Courier New', monospace; font-weight: 800; color: #f59e0b; background: #f59e0b11; padding: 4px 8px; border-radius: 4px; border: 1px solid #f59e0b33;">${u.employee_id || 'N/A'}</span></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">${u.name[0]}</div>
+                            <b>${u.name}</b>
+                        </div>
+                    </td>
+                    <td>${u.email}</td>
+                    <td><span class="badge" style="background: ${u.role === 'Admin' ? 'var(--primary)' : 'var(--secondary)'}; color: white;">${u.role}</span></td>
+                    <td><span class="badge" style="background: var(--border);">Active</span></td>
+                    <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <button onclick='openEditModal(${JSON.stringify(u)})' class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; color: var(--primary);"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteMember(${u.id})" class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; color: var(--danger);"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterUsers() {
+            const query = document.getElementById('userSearch').value.toLowerCase();
+            const filtered = allUsers.filter(u =>
+                (u.email && u.email.toLowerCase().includes(query)) ||
+                (u.employee_id && u.employee_id.toLowerCase().includes(query))
+            );
+            renderUsers(filtered);
+        }
+
+        function openAddMemberModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Team Member';
+            document.getElementById('submitBtn').textContent = 'Create Account';
+            document.getElementById('passwordGroup').style.display = 'block';
+            document.getElementById('editUserId').value = '';
+            document.getElementById('newName').value = '';
+            document.getElementById('newEmail').value = '';
+            document.getElementById('newPassword').value = '';
+
+            // Generate Unique ID: TM + 5 digits
+            const randomNum = Math.floor(10000 + Math.random() * 99999);
+            document.getElementById('empId').value = `TM${randomNum}`;
+
+            document.getElementById('memberModal').style.display = 'block';
+        }
+
+        function openEditModal(u) {
+            document.getElementById('modalTitle').textContent = 'Edit Member Role';
+            document.getElementById('submitBtn').textContent = 'Update Member';
+            document.getElementById('passwordGroup').style.display = 'none';
+            document.getElementById('editUserId').value = u.id;
+            document.getElementById('newName').value = u.name;
+            document.getElementById('empId').value = u.employee_id || '';
+            document.getElementById('newEmail').value = u.email;
+            document.getElementById('newRole').value = u.role;
+            document.getElementById('memberModal').style.display = 'block';
+        }
+
+        function showUserDetail(u) {
+            document.getElementById('detailName').textContent = u.name;
+            document.getElementById('detailAvatar').textContent = u.name[0];
+            document.getElementById('detailRoleBadge').textContent = u.role;
+            document.getElementById('detailRoleBadge').style.background = u.role === 'Admin' ? 'var(--primary)' : 'var(--secondary)';
+            document.getElementById('detailEmpId').textContent = u.employee_id || 'N/A';
+            document.getElementById('detailEmail').textContent = u.email;
+            document.getElementById('detailJoined').textContent = new Date(u.created_at).toLocaleDateString();
+            document.getElementById('detailType').textContent = u.role;
+
+            document.getElementById('detailEditBtn').onclick = () => { closeModal(); openEditModal(u); };
+            document.getElementById('detailDeleteBtn').onclick = () => { closeModal(); deleteMember(u.id); };
+
+            document.getElementById('memberDetailModal').style.display = 'block';
+            loadUserActivity(u.id);
+        }
+
+        async function loadUserActivity(userId) {
+            const projectActive = document.getElementById('detailProjectListActive');
+            const projectHistory = document.getElementById('detailProjectListHistory');
+            const taskActive = document.getElementById('detailTaskListActive');
+            const taskHistory = document.getElementById('detailTaskListHistory');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+
+            [projectActive, projectHistory, taskActive, taskHistory].forEach(el => el.innerHTML = '<p style="color: var(--text-muted);">Loading...</p>');
+
+            // Fetch User Projects
+            const projects = await API.request(`/projects/?members=${userId}`);
+            projectActive.innerHTML = ''; projectHistory.innerHTML = '';
+            if (projects && projects.length > 0) {
+                projects.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'glass-hover';
+                    item.style = 'padding: 8px; border-radius: 6px; border-left: 3px solid var(--primary); font-weight: 600; cursor: pointer; transition: 0.2s;';
+                    item.textContent = p.name;
+                    item.onclick = () => showMiniDetail(p.name, p.description || 'No description', { 'Status': p.status, 'Owner': p.owner.name });
+
+                    if (p.status === 'Completed') projectHistory.appendChild(item);
+                    else projectActive.appendChild(item);
+                });
+            }
+            if (!projectActive.innerHTML) projectActive.innerHTML = '<p style="color: var(--text-muted);">None</p>';
+            if (!projectHistory.innerHTML) projectHistory.innerHTML = '<p style="color: var(--text-muted);">None</p>';
+
+            // Fetch User Tasks
+            const tasks = await API.request(`/tasks/?assigned_to=${userId}`);
+            taskActive.innerHTML = ''; taskHistory.innerHTML = '';
+            if (tasks && tasks.length > 0) {
+                const completedCount = tasks.filter(t => t.status === 'Done').length;
+                const percent = Math.round((completedCount / tasks.length) * 100);
+                progressBar.style.width = `${percent}%`;
+                progressPercent.textContent = `${percent}%`;
+
+                tasks.forEach(t => {
+                    const item = document.createElement('div');
+                    item.style = 'padding: 8px 12px; background: var(--bg-card); border-radius: 8px; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid var(--border); transition: 0.2s;';
+                    item.className = 'glass-hover';
+
+                    const statusColor = t.status === 'Done' ? '#10b981' : '#f59e0b';
+
+                    item.innerHTML = `
+                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                            <span style="font-weight: 700; color: var(--text-main);">${t.title}</span>
+                            <span style="font-size: 0.65rem; color: var(--text-muted);">${t.project_detail ? t.project_detail.name : 'No Project'}</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            ${t.status === 'Done' ? `<button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.65rem; border-radius: 6px;">View Task</button>` : ''}
+                            <span class="badge" style="font-size: 0.6rem; background: ${statusColor}22; color: ${statusColor}; border: 1px solid ${statusColor}44;">${t.status}</span>
+                        </div>
+                    `;
+
+                    item.onclick = () => showMiniDetail(t.title, t.description || 'No description', {
+                        'Project': t.project_detail ? t.project_detail.name : 'N/A',
+                        'Status': t.status,
+                        'Due Date': t.due_date ? new Date(t.due_date).toLocaleDateString() : 'N/A'
+                    }, t);
+
+                    if (t.status === 'Done') taskHistory.appendChild(item);
+                    else taskActive.appendChild(item);
+                });
+            } else {
+                progressBar.style.width = '0%';
+                progressPercent.textContent = '0%';
+            }
+            if (!taskActive.innerHTML) taskActive.innerHTML = '<p style="color: var(--text-muted);">None</p>';
+            if (!taskHistory.innerHTML) taskHistory.innerHTML = '<p style="color: var(--text-muted);">None</p>';
+        }
+
+        let currentMiniTaskId = null;
+
+        function showMiniDetail(title, desc, stats, taskObj = null) {
+            document.getElementById('miniTitle').textContent = title;
+            document.getElementById('miniDesc').textContent = desc;
+            const statsEl = document.getElementById('miniStats');
+            statsEl.innerHTML = '';
+            for (const [key, val] of Object.entries(stats)) {
+                statsEl.innerHTML += `<div><label style="font-size: 0.7rem; color: var(--text-muted);">${key}</label><p style="font-size: 0.8rem; font-weight: 600; margin: 0;">${val || 'N/A'}</p></div>`;
+            }
+
+            const submissionInfo = document.getElementById('submissionInfo');
+            if (taskObj && taskObj.status === 'Done') {
+                currentMiniTaskId = taskObj.id;
+                submissionInfo.style.display = 'block';
+                const linksEl = document.getElementById('submissionLinks');
+                linksEl.innerHTML = `
+                    <div style="background: #f8fafc; padding: 1rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1rem; position: relative;">
+                        <label style="font-size: 0.6rem; color: var(--primary); font-weight: 800; display: block; margin-bottom: 8px; letter-spacing: 0.5px;"><i class="fas fa-comment-alt"></i> COMPLETION REPORT</label>
+                        <p style="font-size: 0.8rem; color: var(--text-main); line-height: 1.6; margin: 0;">${taskObj.submission_reports || 'No report provided.'}</p>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem;">
+                        ${taskObj.submission_code ? `
+                            <a href="${taskObj.submission_code}" target="_blank" style="background: white; padding: 10px; border-radius: 10px; border: 1px solid var(--border); text-decoration: none; transition: 0.2s;" class="glass-hover">
+                                <label style="font-size: 0.55rem; color: var(--text-muted); cursor: pointer;">SOURCE CODE</label>
+                                <span style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--primary); font-weight: 600; margin-top: 4px;"><i class="fab fa-github"></i> Open Repo</span>
+                            </a>` : ''}
+                        ${taskObj.submission_docs ? `
+                            <a href="${taskObj.submission_docs}" target="_blank" style="background: white; padding: 10px; border-radius: 10px; border: 1px solid var(--border); text-decoration: none; transition: 0.2s;" class="glass-hover">
+                                <label style="font-size: 0.55rem; color: var(--text-muted); cursor: pointer;">DOCUMENTATION</label>
+                                <span style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--primary); font-weight: 600; margin-top: 4px;"><i class="fas fa-file-alt"></i> View Docs</span>
+                            </a>` : ''}
+                    </div>
+
+                    ${taskObj.images && taskObj.images.length > 0 ? `
+                        <div>
+                            <label style="font-size: 0.6rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px;">DESIGN SCREENSHOTS</label>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px;">
+                                ${taskObj.images.map(img => `
+                                    <img src="${img.image}" style="width: 50%; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s;" 
+                                         onclick="window.open('${img.image}')" 
+                                         onmouseover="this.style.transform='scale(1.01)'" 
+                                         onmouseout="this.style.transform='scale(1)'">
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+                updateStars(taskObj.rating);
+            } else {
+                submissionInfo.style.display = 'none';
+            }
+
+            document.getElementById('miniDetailModal').style.display = 'block';
+        }
+
+        async function rateTask(rating) {
+            if (!currentMiniTaskId) return;
+            const success = await API.request(`/tasks/${currentMiniTaskId}/rate/`, 'POST', { rating });
+            if (success) {
+                updateStars(rating);
+                Notification.show('Rating updated successfully');
+            }
+        }
+
+        function updateStars(rating) {
+            const stars = document.querySelectorAll('#starRating i');
+            stars.forEach((s, i) => {
+                s.style.color = (i < rating) ? '#f59e0b' : '#cbd5e1';
+            });
+        }
+
+        async function deleteMember(id) {
+            Notification.confirm('Are you sure you want to remove this member? All their data will be preserved but they will lose access.', async () => {
+                const success = await API.request(`/accounts/users/${id}/`, 'DELETE');
+                if (success) {
+                    Notification.show('Member removed successfully');
+                    init();
+                }
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('memberModal').style.display = 'none';
+            document.getElementById('memberDetailModal').style.display = 'none';
+        }
+
+        document.getElementById('memberForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            API.setButtonLoading(btn, true);
+
+            const id = document.getElementById('editUserId').value;
+            const data = {
+                name: document.getElementById('newName').value,
+                email: document.getElementById('newEmail').value,
+                role: document.getElementById('newRole').value,
+                employee_id: document.getElementById('empId').value
+            };
+
+            let success;
+            if (id) {
+                success = await API.request(`/accounts/users/${id}/`, 'PATCH', data);
+            } else {
+                data.password = document.getElementById('newPassword').value;
+                success = await Auth.register(data);
+            }
+
+            if (success) {
+                Notification.show(id ? 'Member updated' : 'Member registered');
+                closeModal();
+                init();
+            } else {
+                Notification.show('Operation failed. Check if email exists.', 'error');
+            }
+            API.setButtonLoading(btn, false);
+        });
+
+        init();
+    </script>
+</body>
+
+</html>
