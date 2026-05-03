@@ -64,7 +64,7 @@ class UserListView(generics.ListCreateAPIView):
 
             <h2 style="color: #ef4444; border-bottom: 1px solid #eee; padding-bottom: 5px;">Login URL:</h2>
             <p>You can login using the following URL:</p>
-            <a href="https://task-manager-swaraj.up.railway.app/" style="color: #10b981; text-decoration: none;">Task Manager Login</a>
+            <a href="https://task-manager-production-eb18.up.railway.app/" style="color: #10b981; text-decoration: none;">Task Manager Login</a>
 
             <h2 style="color: #ef4444; border-bottom: 1px solid #eee; padding-bottom: 5px;">Important Instructions:</h2>
             <ul>
@@ -92,7 +92,7 @@ Username: {user.email}
 Employee ID: {user.employee_id}
 Temporary Password: {raw_password}
 
-Login URL: https://task-manager-swaraj.up.railway.app/login
+Login URL: https://task-manager-production-eb18.up.railway.app/login
 
 Important Instructions:
 * Please log in and change your password immediately.
