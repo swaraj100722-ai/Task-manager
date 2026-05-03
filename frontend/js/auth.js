@@ -113,6 +113,10 @@ window.Auth = Auth;
 // Theme Management
 const Theme = {
     init() {
+        // Skip theme initialization for login page to keep it clean
+        if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/') || window.location.pathname === '') {
+            return;
+        }
         const savedTheme = localStorage.getItem('theme') || 'light';
         this.apply(savedTheme);
     },

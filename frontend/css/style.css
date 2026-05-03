@@ -28,6 +28,8 @@
     --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5);
 }
 
+
+
 * {
     margin: 0;
     padding: 0;
@@ -307,6 +309,8 @@ select.form-input option {
     background: rgba(255, 255, 255, 0.02);
 }
 
+
+
 /* Progress Bars */
 .progress-container {
     width: 100%;
@@ -460,6 +464,8 @@ select.form-input option {
 [data-theme="dark"] #screen-loader {
     background: rgba(15, 23, 42, 0.1);
 }
+
+
 
 #screen-loader.hidden {
     opacity: 0;

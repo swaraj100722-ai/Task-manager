@@ -120,7 +120,8 @@
     <div class="review-container">
         <header class="review-header">
             <div>
-                <a href="tasks.html" style="text-decoration: none; color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+                <a href="tasks.html"
+                    style="text-decoration: none; color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
                     <i class="fas fa-arrow-left"></i> Back to Tasks
                 </a>
                 <h1 style="margin-top: 15px;" id="taskTitle">Loading Submission...</h1>
@@ -139,7 +140,8 @@
                 <!-- Links will be here -->
             </div>
 
-            <h3 style="color: var(--primary); margin-top: 40px; margin-bottom: 20px;"><i class="fas fa-images"></i> Design Preview</h3>
+            <h3 style="color: var(--primary); margin-top: 40px; margin-bottom: 20px;"><i class="fas fa-images"></i>
+                Design Preview</h3>
             <div id="imageGallery" class="image-gallery">
                 <!-- Images will be here -->
             </div>
@@ -154,7 +156,9 @@
                 <i class="fas fa-star star-btn" onclick="rateTask(4)"></i>
                 <i class="fas fa-star star-btn" onclick="rateTask(5)"></i>
             </div>
-            <p id="ratingStatus" style="position: absolute; top: -30px; font-size: 0.8rem; color: var(--success); display: none; font-weight: 700;">Rating Saved!</p>
+            <p id="ratingStatus"
+                style="position: absolute; top: -30px; font-size: 0.8rem; color: var(--success); display: none; font-weight: 700;">
+                Rating Saved!</p>
         </div>
     </div>
 
@@ -234,7 +238,7 @@
         function getFullImageUrl(path) {
             if (!path) return '';
             if (path.startsWith('http')) return path;
-            
+
             // Dynamically get the backend origin from API_BASE
             try {
                 const apiOrigin = new URL(API_BASE).origin;
