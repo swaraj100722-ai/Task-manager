@@ -115,7 +115,7 @@
             </div>
             <div id="passwordGroup" class="form-group">
                 <label class="form-label">Temporary Password</label>
-                <input type="password" id="newPassword" class="form-input">
+                <input type="text" id="newPassword" class="form-input">
             </div>
             <div class="form-group">
                 <label class="form-label">Role</label>
@@ -527,6 +527,18 @@
             document.getElementById('memberModal').style.display = 'none';
             document.getElementById('memberDetailModal').style.display = 'none';
         }
+
+        document.getElementById('newName').addEventListener('input', (e) => {
+            const userId = document.getElementById('editUserId').value;
+            if (!userId) { // Only for new members
+                const name = e.target.value.trim().toLowerCase().replace(/\s+/g, '');
+                if (name) {
+                    document.getElementById('newPassword').value = `${name}@123`;
+                } else {
+                    document.getElementById('newPassword').value = '';
+                }
+            }
+        });
 
         document.getElementById('memberForm').addEventListener('submit', async (e) => {
             e.preventDefault();
