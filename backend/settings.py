@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-t3u%+(=a3aqab*huxn&x1dix5#
 
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1','task-manager-swaraj.up.railway.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'task-manager-swaraj.up.railway.app', '.up.railway.app']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://task-manager-swaraj.up.railway.app',
