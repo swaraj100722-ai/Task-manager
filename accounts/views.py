@@ -64,7 +64,8 @@ class UserListView(generics.ListCreateAPIView):
 
             <h2 style="color: #ef4444; border-bottom: 1px solid #eee; padding-bottom: 5px;">Login URL:</h2>
             <p>You can login using the following URL:</p>
-            <a href="https://task-manager-production-eb18.up.railway.app/" style="color: #10b981; text-decoration: none;">Task Manager Login</a>
+            <button style="background-color: #6366f1; color: white; padding: 10px 20px; border: none; display: flex; justify-content: center; align-items: center; border-radius: 5px; cursor: pointer;">
+            <a href="https://task-manager-swaraj.up.railway.app" style="color: white; text-align: center; font-weight: 600; text-decoration: none;">Task Manager Login</a></button>
 
             <h2 style="color: #ef4444; border-bottom: 1px solid #eee; padding-bottom: 5px;">Important Instructions:</h2>
             <ul>
