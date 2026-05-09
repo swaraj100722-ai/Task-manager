@@ -51,7 +51,7 @@ class UserListView(generics.ListCreateAPIView):
         
         # HTML version for rich formatting
         html_message = f"""
-        <style>:root { --text-muted: #2a3f8e; } .separator { display: flex; align-items: center; margin-bottom: 1.5rem; gap: 15px; } .separator-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--text-muted), transparent); } .separator-dot { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; }</style>
+        <style>:root {{ --text-muted: #2a3f8e; }} .separator {{ display: flex; align-items: center; margin-bottom: 1.5rem; gap: 15px; }} .separator-line {{ flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--text-muted), transparent); }} .separator-dot {{ width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; }}</style>
 <div style="min-height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; background: #eaf1ff;">
     <div
         style="font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; line-height: 1.65; color: #333333; font-size: 15px; background: linear-gradient(180deg, #f4f8ff 0%, #ffffff 100%); padding: 30px; border-radius: 20px; box-shadow: 0 22px 60px rgba(34, 64, 120, 0.10); max-width: 760px; width: 100%; margin: 0 auto;">
