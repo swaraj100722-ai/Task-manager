@@ -51,38 +51,47 @@ class UserListView(generics.ListCreateAPIView):
         
         # HTML version for rich formatting
         html_message = f"""
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: var(--text-secondary);">
-            <p>Dear <strong>{user.name}</strong>,</p>
-            <p>Welcome to the team! We’re excited to have you on board.</p>
-            <p>Please find your login credentials below:</p>
-            
-            <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #10b981; margin: 20px 0;">
-                <h3 style="margin-top: 0;">Username: <span style="color: #10b981;">{user.email}</span></h3>
-                <h3>Employee ID: <span style="color: #10b981;">{user.employee_id}</span></h3>
-                <h3 style="margin-bottom: 0;">Temporary Password: <span style="color: #10b981;">{raw_password}</span></h3>
-            </div>
+        <div
+    style="font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; line-height: 1.65; color: #333333; font-size: 15px; background: linear-gradient(180deg, #f4f8ff 0%, #ffffff 100%); padding: 30px; border-radius: 20px; box-shadow: 0 22px 60px rgba(34, 64, 120, 0.10); max-width: 760px; margin: 0 auto;">
+    <p style="margin-bottom: 1em;">Dear <strong style="font-weight: 700; color: #1f3d8f;">{user.name} ,</strong></p>
+    <p style="margin-bottom: 1em;">Welcome to the team! We’re excited to have you on board.</p>
+    <p style="margin-bottom: 1.25em;">Please find your login credentials below:</p>
 
-            <h2 style="color: #ef4444; border-bottom: 1px solid #eee; padding-bottom: 5px;">Login URL:</h2>
-            <p>You can login using the following URL:</p>
-            <button style="background-color: #6366f1; color: white; padding: 10px 20px; border: none; display: flex; justify-content: center; align-items: center; border-radius: 5px; cursor: pointer;">
-            <a href="https://task-manager-swaraj.up.railway.app" style="color: white; text-align: center; font-weight: 600; text-decoration: none;">Task Manager Login</a></button>
+    <div style="background: linear-gradient(135deg, #eef4ff 0%, #ffffff 100%); padding: 18px; border-left: 5px solid #5b84ff; margin: 20px 0; border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(91, 132, 255, 0.12);">
+        <h3 style="margin-top: 0; font-weight: 600; letter-spacing: -0.02em; color: #2a3f8e;">Username: <span
+                style="color: #5b84ff;">{user.email}</span></h3>
+        <h3 style="color: #2a3f8e;">Employee ID: <span style="color: #5b84ff;">{user.employee_id}</span></h3>
+        <h3 style="margin-bottom: 0; color: #2a3f8e;">Temporary Password: <span style="color: #5b84ff;">{raw_password}</span></h3>
+    </div>
 
-            <h2 style="color: #ef4444; border-bottom: 1px solid #eee; padding-bottom: 5px;">Important Instructions:</h2>
-            <ul>
-                <li><strong>For security reasons, please log in using the above credentials and change your password immediately.</strong></li>
-                <li>Choose a strong password that includes a mix of letters, numbers, and special characters.</li>
-                <li><strong>Do not share your login details with anyone.</strong></li>
-            </ul>
+    <h2 style="color: #3347c4; border-bottom: 1px solid #d7e0ff; padding-bottom: 5px;">Login URL:</h2>
+    <p>You can login using the following URL below:</p>
+    <div style="text-align: center; margin: 16px 0;">
+        <a href="https://task-manager-swaraj.up.railway.app"
+            style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #4c6fff 0%, #3a4fd1 100%); color: #ffffff; text-decoration: none; border-radius: 999px; font-weight: 700; letter-spacing: 0.03em; box-shadow: 0 10px 20px rgba(60, 80, 220, 0.18); border: 1px solid rgba(255,255,255,0.22); text-shadow: 0 1px 2px rgba(0,0,0,0.18); transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 14px 24px rgba(60, 80, 220, 0.24)'; this.style.filter='brightness(1.05)';"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 20px rgba(60, 80, 220, 0.18)'; this.style.filter='brightness(1)';">
+            Task Manager Login
+        </a>
+    </div>
 
-            <p>If you face any issues while logging in or changing your password, please contact the IT support team.</p>
-            <p>We wish you a great start and a successful journey with us.</p>
-            
-            <p style="margin-top: 30px;">
-                Best regards,<br>
-                <strong>Task Manager Team</strong><br>
-                [HR / IT Team]
-            </p>
-        </div>
+    <h2 style="color: #ef4444; border-bottom: 1px solid #eee; padding-bottom: 5px;">Important Instructions:</h2>
+    <ul>
+        <li><strong>For security reasons, please log in using the above credentials and change your password
+                immediately.</strong></li>
+        <li>Choose a strong password that includes a mix of letters, numbers, and special characters.</li>
+        <li><strong>Do not share your login details with anyone.</strong></li>
+    </ul>
+
+    <p>If you face any issues while logging in or changing your password, please contact the IT support team.</p>
+    <p>We wish you a great start and a successful journey with us.</p>
+
+    <p style="margin-top: 30px;">
+        Best regards,<br>
+        <strong>Task Manager Team</strong><br>
+        [HR / IT Team]
+    </p>
+</div>
         """
         
         # Plain text version for fallback
@@ -93,7 +102,7 @@ Username: {user.email}
 Employee ID: {user.employee_id}
 Temporary Password: {raw_password}
 
-Login URL: https://task-manager-production-eb18.up.railway.app/login
+Login URL: https://task-manager-swaraj.up.railway.app
 
 Important Instructions:
 * Please log in and change your password immediately.
