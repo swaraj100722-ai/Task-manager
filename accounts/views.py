@@ -51,20 +51,27 @@ class UserListView(generics.ListCreateAPIView):
         
         # HTML version for rich formatting
         html_message = f"""
-        <div
-    style="font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; line-height: 1.65; color: #333333; font-size: 15px; background: linear-gradient(180deg, #f4f8ff 0%, #ffffff 100%); padding: 30px; border-radius: 20px; box-shadow: 0 22px 60px rgba(34, 64, 120, 0.10); max-width: 760px; margin: 0 auto;">
-    <p style="margin-bottom: 1em;">Dear <strong style="font-weight: 700; color: #1f3d8f;">{user.name} ,</strong></p>
+        <style>:root { --text-muted: #2a3f8e; } .separator { display: flex; align-items: center; margin-bottom: 1.5rem; gap: 15px; } .separator-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--text-muted), transparent); } .separator-dot { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; }</style>
+<div style="min-height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; background: #eaf1ff;">
+    <div
+        style="font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; line-height: 1.65; color: #333333; font-size: 15px; background: linear-gradient(180deg, #f4f8ff 0%, #ffffff 100%); padding: 30px; border-radius: 20px; box-shadow: 0 22px 60px rgba(34, 64, 120, 0.10); max-width: 760px; width: 100%; margin: 0 auto;">
+        <p style="margin-bottom: 1em;">Dear <strong style="font-weight: 700; color: #1f3d8f;">{user.name} ,</strong></p>
     <p style="margin-bottom: 1em;">Welcome to the team! We’re excited to have you on board.</p>
     <p style="margin-bottom: 1.25em;">Please find your login credentials below:</p>
 
-    <div style="background: linear-gradient(135deg, #eef4ff 0%, #ffffff 100%); padding: 18px; border-left: 5px solid #5b84ff; margin: 20px 0; border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(91, 132, 255, 0.12);">
-        <h3 style="margin-top: 0; font-weight: 600; letter-spacing: -0.02em; color: #2a3f8e;">Username: <span
-                style="color: #5b84ff;">{user.email}</span></h3>
-        <h3 style="color: #2a3f8e;">Employee ID: <span style="color: #5b84ff;">{user.employee_id}</span></h3>
-        <h3 style="margin-bottom: 0; color: #2a3f8e;">Temporary Password: <span style="color: #5b84ff;">{raw_password}</span></h3>
+    <div style="background: linear-gradient(135deg, #d1dff9 0%, #ffffff 100%); padding: 18px; border-left: 5px solid #5b84ff; margin: 20px 0; border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(91, 132, 255, 0.12);">
+        <h3 style="margin-top: 0; color: #2a3f8e;">Username: 
+            <span style="color: #5b84ff;">{user.email}</span></h3>
+        <h3 style="color: #2a3f8e;">Employee ID: <span style="color: #f59e0b; font-family: 'Courier New', monospace;">{user.employee_id}</span></h3>
+        <h3 style="margin-bottom: 0; color: #2a3f8e;">Temporary Password: <span style="color: #10b981;">{raw_password}</span></h3>
     </div>
 
-    <h2 style="color: #3347c4; border-bottom: 1px solid #d7e0ff; padding-bottom: 5px;">Login URL:</h2>
+    <h2 style="color: #3347c4; margin-bottom: 0;">Login URL:</h2>
+    <div class="separator">
+        <div class="separator-line"></div>
+        <div class="separator-dot"></div>   
+        <div class="separator-line"></div>
+    </div>
     <p>You can login using the following URL below:</p>
     <div style="text-align: center; margin: 16px 0;">
         <a href="https://task-manager-swaraj.up.railway.app"
@@ -75,7 +82,12 @@ class UserListView(generics.ListCreateAPIView):
         </a>
     </div>
 
-    <h2 style="color: #ef4444; border-bottom: 1px solid #eee; padding-bottom: 5px;">Important Instructions:</h2>
+    <h2 style="color: #ef4444; margin-bottom: 0;">Important Instructions:</h2>
+    <div class="separator">
+        <div class="separator-line"></div>
+        <div class="separator-dot"></div>   
+        <div class="separator-line"></div>
+    </div>
     <ul>
         <li><strong>For security reasons, please log in using the above credentials and change your password
                 immediately.</strong></li>
@@ -91,6 +103,7 @@ class UserListView(generics.ListCreateAPIView):
         <strong>Task Manager Team</strong><br>
         [HR / IT Team]
     </p>
+    </div>
 </div>
         """
         
